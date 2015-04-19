@@ -32,15 +32,11 @@ class RespondersController < ApplicationController
 
   private
 
-  def render_404
-    render file: "#{Rails.root}/public/404.json", layout: false, status: 404
-  end
-
   def responder_params
     params.require(:responder).permit(:name, :type, :capacity)
   end
 
   def find_responder
-    @responder = Responder.find_by(name: params[:name])
+    @responder = Responder.find_by_name! params[:name]
   end
 end

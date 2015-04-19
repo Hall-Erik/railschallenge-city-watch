@@ -1,5 +1,5 @@
-json.array!(@responders) do |responder|
-  json.responder do
+json.responders do
+  json.array!(@responders) do |responder|
     json.extract! responder,
       :emergency_code,
       :type,
