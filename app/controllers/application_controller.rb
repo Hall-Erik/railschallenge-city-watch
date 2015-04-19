@@ -6,5 +6,4 @@ class ApplicationController < ActionController::Base
   def unpermitted_params(exception)
     render json: { message: exception.to_s }, status: 422
   end
-
 end

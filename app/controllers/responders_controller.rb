@@ -5,22 +5,18 @@ class RespondersController < ApplicationController
 
   def index
     @responders = Responder.all
-
-    #render json: @responder.as_json(only: [:name, :type, :capacity])
   end
 
   def show
-
   end
 
   def create
     @responder = Responder.new responder_params
-
     if @responder.save
-      @json = {responder: @responder.as_json(only: [:on_duty, :emergency_code, :capacity, :name, :type, :capacity])}
+      @json = { responder: @responder.as_json(only: [:on_duty, :emergency_code, :capacity, :name, :type, :capacity]) }
       render json: @json, status: 201
     else
-      @message = {message: @responder.errors}
+      @message = { message: @responder.errors }
       render json: @message, status: 422
     end
   end
