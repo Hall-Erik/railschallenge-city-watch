@@ -29,6 +29,6 @@ class EmergenciesController < ApplicationController
   private
 
   def find_emergency
-    @emergency = Emergency.find_by_code params[:code]
+    @emergency = Emergency.find_by_code! params[:code]
   end
 end
