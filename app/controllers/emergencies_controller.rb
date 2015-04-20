@@ -6,7 +6,9 @@ class EmergenciesController < ApplicationController
   end
 
   def create
-    @emergency = Emergency.new params.require(:emergency).permit(:code, :fire_severity, :police_severity, :medical_severity)
+    # RuboCop was not happy with the length of this line, so I made it two lines.
+    emergency_params = params.require(:emergency).permit(:code, :fire_severity, :police_severity, :medical_severity)
+    @emergency = Emergency.new emergency_params
     if @emergency.save
       render :show, status: :created
     else
