@@ -1,6 +1,6 @@
 class RespondersController < ApplicationController
   respond_to :json
-  before_action :find_responder, only: [:show, :edit, :update, :destroy]
+  before_action :find_responder, only: [:show, :update]
   before_action :render_404, only: [:new, :edit, :destroy]
 
   def index
