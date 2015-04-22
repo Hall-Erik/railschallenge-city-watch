@@ -24,7 +24,8 @@ class EmergenciesController < ApplicationController
   end
 
   def update
-    emergency_params = params.require(:emergency).permit(:fire_severity, :police_severity, :medical_severity, :resolved_at)
+    emergency_params = params.require(:emergency).permit(
+      :fire_severity, :police_severity, :medical_severity, :resolved_at)
     render :show if @emergency.update emergency_params
   end
 
