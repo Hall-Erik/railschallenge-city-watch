@@ -2,6 +2,11 @@ class EmergenciesController < ApplicationController
   before_action :find_emergency, only: [:show, :update]
   before_action :render_404, only: [:new, :edit, :destroy]
 
+  def index
+    @emergencies = Emergency.all
+    @full_response_count = [Emergency.where(full_response: true).count, @emergencies.count]
+  end
+
   def show
   end
 
