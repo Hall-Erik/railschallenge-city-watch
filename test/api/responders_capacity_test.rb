@@ -3,7 +3,6 @@ require 'test_helper'
 class RespondersCapacityTest < ActionDispatch::IntegrationTest
   def setup
     super
-
     post '/responders/', responder: { type: 'Fire', name: 'F-100', capacity: 1 }
     post '/responders/', responder: { type: 'Fire', name: 'F-101', capacity: 2 }
     patch '/responders/F-101', responder: { on_duty: true }

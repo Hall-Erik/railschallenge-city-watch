@@ -4,6 +4,12 @@ class RespondersController < ApplicationController
   before_action :render_404, only: [:new, :edit, :destroy]
 
   def index
+    if params[:show] == 'capacity'
+      @capacity = {}
+      @capacity['Fire'] = capacitate 'Fire'
+      @capacity['Police'] = capacitate 'Police'
+      @capacity['Medical'] = capacitate 'Medical'
+    end
     @responders = Responder.all
   end
 
@@ -34,6 +40,13 @@ class RespondersController < ApplicationController
   end
 
   private
+
+  def capacitate(type)
+    [Responder.where(type: type).sum(:capacity),
+     Responder.where(type: type, emergency_code: nil).sum(:capacity),
+     Responder.where(type: type, on_duty: true).sum(:capacity),
+     Responder.where(type: type, on_duty: true, emergency_code: nil).sum(:capacity)]
+  end
 
   def find_responder
     @responder = Responder.find_by_name! params[:name]
