@@ -4,9 +4,12 @@ class Emergency < ActiveRecord::Base
   validates :fire_severity, presence: true, numericality: { greater_than_or_equal_to: 0 }
   validates :police_severity, presence: true, numericality: { greater_than_or_equal_to: 0 }
   validates :medical_severity, presence: true, numericality: { greater_than_or_equal_to: 0 }
-  before_create :dispatch
+  before_create :dispatcher
   before_update :resolve
 
+  private
+
+  # If emergency is resolved, free up the responders
   def resolve
     return unless resolved_at_changed?
     Responder.where(emergency_code: code).find_each do |responder|
@@ -15,36 +18,21 @@ class Emergency < ActiveRecord::Base
     end
   end
 
-  private
-
-  # Called after_create
   # Starts the process of dispatching responders to this emergency
-  # using several extra methods to keep RuboCop happy
-  def dispatch
-    full_response = dispatch_types
+  def dispatcher
+    fire_response = (fire_severity > 0) ? dispatch('Fire', fire_severity) : 0
+    police_response = (police_severity > 0) ? dispatch('Police', police_severity) : 0
+    medical_response = (medical_severity > 0) ? dispatch('Medical', medical_severity) : 0
 
-    return unless full_response
+    return unless fire_response >= fire_severity &&
+      police_response >= police_severity && medical_response >= medical_severity
     self.full_response = true
   end
 
-  # Call the dispatcher method for all emergency types
-  def dispatch_types
-    # x_response is the sum of the capacity of responders of type x
-    fire_response = (fire_severity > 0) ? dispatcher('Fire', fire_severity) : 0
-    police_response = (police_severity > 0) ? dispatcher('Police', police_severity) : 0
-    medical_response = (medical_severity > 0) ? dispatcher('Medical', medical_severity) : 0
-    full_response?(fire_response, police_response, medical_response)
-  end
-
-  # RuboCop wants a small ABC size, so I put this in its own method
-  def full_response?(fire_response, police_response, medical_response)
-    fire_response >= fire_severity && police_response >= police_severity && medical_response >= medical_severity
-  end
-
   # Respond to a specific type of emergency
-  def dispatcher(type, severity)
+  def dispatch(type, severity)
     response = 0
-    responders = find_responders(type)
+    responders = Responder.where(type: type, on_duty: true, emergency_code: nil).order(capacity: :desc)
 
     response = check_responders(responders, severity, response) { |capacity| capacity > severity }
     if response < severity
@@ -70,11 +58,5 @@ class Emergency < ActiveRecord::Base
     end
 
     response
-  end
-
-  # Find responders by type that are on duty and not currently dispatched
-  # in descending order of capacity
-  def find_responders(type)
-    Responder.where(type: type, on_duty: true, emergency_code: nil).order(capacity: :desc)
   end
 end
